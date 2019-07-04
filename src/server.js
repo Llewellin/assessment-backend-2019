@@ -5,6 +5,17 @@ const { ApolloServer } = require('apollo-server-express')
 mongoose.Promise       = global.Promise
 
 const { seedUsers } = require('./db-init')
+import resolvers from './graphql/resolvers/index'
+import typeDefs from './graphql/schemas/index'
+// Type definitions (schema)
+// const typeDefs = `
+//     type Query {
+//         hello: String!
+//         name: String!
+//         location: String!
+//         bio: String!
+//     }
+// `
 
 mongoose.connect(config.get('db.uri'), { useNewUrlParser: true })
   .then(async () => {
@@ -13,7 +24,10 @@ mongoose.connect(config.get('db.uri'), { useNewUrlParser: true })
     await seedUsers()
 
     // TODO: Initialize Apollo with the required arguments as you see fit
-    const server = new ApolloServer({})
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+    })
 
     const app = express()
     server.applyMiddleware({ app })
