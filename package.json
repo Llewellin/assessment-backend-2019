@@ -19,7 +19,8 @@
     "js-yaml": "^3.13.1",
     "mongoose": "^5.5.11",
     "nodemon": "^1.19.1",
-    "qs-middleware": "^1.0.3"
+    "qs-middleware": "^1.0.3",
+    "uuidv4": "^4.0.0"
   },
   "devDependencies": {
     "jest": "^24.8.0"

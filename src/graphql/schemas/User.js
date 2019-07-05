@@ -6,4 +6,4 @@ const User = `
         role: String!
     }`
 
-export {User as default};
+module.exports = User

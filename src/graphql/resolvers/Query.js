@@ -1,34 +1,19 @@
-const userArray = [
-    {
-        id: '1',
-        name: 'vincent',
-        email: 'exsequens15@gmail.com',
-        role: 'god'
-    },
-    {
-        id: '2',
-        name: 'junjun',
-        email: 'junjun@gmail.com',
-        role: 'pet'
-    }
-]
+const { User, Incident } = require('../../models')
 
 const Query = {
-    hello() {
-        return 'This is my first query!'
+    async users(parent, args, { db }, info) {
+      if (!args.name) {
+        return await User.find()
+      }
+
+      return await User.find({name: args.name})
     },
-    name() {
-        return 'Andrew Mead'
-    },
-    location() {
-        return 'Philadelphia'
-    },
-    bio() {
-        return 'I live in Philly and teach on Udemy!'
-    },
-    users(parent, args, { db }, info) {
-        return userArray
-    },
+    async incidents(parent, args, { db }, info) {
+      if (!args.title)
+        return await Incident.find()
+
+      return await Incident.find({title: args.name})
+    }
 }
 
-export { Query as default }
+module.exports = Query

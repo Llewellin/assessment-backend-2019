@@ -1,9 +1,10 @@
 const Incident = `
     type Incident {
         id: ID!
-        name: String!
-        email: String!
-        age: Int
+        title: String!
+        description: String!
+        assignee: String!
+        status: String!
     }`
 
-export {Incident as default};
+module.exports = Incident

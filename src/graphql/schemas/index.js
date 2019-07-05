@@ -3,16 +3,33 @@ import User from './User';
 
 const def = `
     type Query {
-        hello: String!
+        users(name: String): [User!]!
+        incidents(title: String): [Incident!]!
+    }
+    type Mutation {
+        createUser(data: CreateUserInput!): User!
+        createIncident(data: CreateIncidentInput!): Incident!
+        assignIncident(data: AssignIncidentInput!): Incident!
+        acknowledgeIncident(title: String!): Incident!
+        resolveIncident(title: String!): Incident!
+        deleteIncident(title: String!): Incident!
+    }
+    input CreateUserInput {
         name: String!
-        location: String!
-        bio: String!
-        users(query: String): [User!]!
+        email: String!
+        role: String!
+    }
+    input CreateIncidentInput {
+        title: String!
+        description: String!
+        assignee: String!
+        status: String!
+    }
+    input AssignIncidentInput {
+        userName: String!
+        incidentTitle: String!
     }
 `
 
 const typeDef = `${def}${Incident}${User}`
-
-export {
-    typeDef as default
-}
+module.exports = typeDef

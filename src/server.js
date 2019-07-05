@@ -5,19 +5,10 @@ const { ApolloServer } = require('apollo-server-express')
 mongoose.Promise       = global.Promise
 
 const { seedUsers } = require('./db-init')
-import resolvers from './graphql/resolvers/index'
-import typeDefs from './graphql/schemas/index'
-// Type definitions (schema)
-// const typeDefs = `
-//     type Query {
-//         hello: String!
-//         name: String!
-//         location: String!
-//         bio: String!
-//     }
-// `
+const resolvers = require('./graphql/resolvers')
+const typeDefs = require('./graphql/schemas')
 
-mongoose.connect(config.get('db.uri'), { useNewUrlParser: true })
+mongoose.connect(config.get('db.uri'), { useNewUrlParser: true, useFindAndModify: false })
   .then(async () => {
     console.log('INFO: Connected to the database')
 
