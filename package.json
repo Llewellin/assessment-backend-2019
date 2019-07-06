@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "main": "src/server.js",
   "scripts": {
-    "prestart": "docker-compose up -d",
     "start": "nodemon src/server.js --ext js,graphql --exec babel-node",
     "test": "jest"
   },
