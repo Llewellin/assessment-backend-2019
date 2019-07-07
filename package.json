@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "src/server.js",
   "scripts": {
+    "prettify": "prettier --write --no-semi --single-quote \"./*.{js,json}\" \"./src/**/*.{js,json}\"",
     "start": "nodemon src/server.js --ext js,graphql --exec babel-node",
     "test": "jest"
   },
@@ -18,6 +19,7 @@
     "js-yaml": "^3.13.1",
     "mongoose": "^5.5.11",
     "nodemon": "^1.19.1",
+    "prettier": "^1.18.2",
     "qs-middleware": "^1.0.3",
     "uuidv4": "^4.0.0"
   },

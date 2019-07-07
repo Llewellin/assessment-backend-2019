@@ -1,14 +1,18 @@
-const config           = require('config')
-const express          = require('express')
-const mongoose         = require('mongoose')
+const config = require('config')
+const express = require('express')
+const mongoose = require('mongoose')
 const { ApolloServer } = require('apollo-server-express')
-mongoose.Promise       = global.Promise
+mongoose.Promise = global.Promise
 
 const { seedUsers } = require('./db-init')
 const resolvers = require('./graphql/resolvers')
 const typeDefs = require('./graphql/schemas')
 
-mongoose.connect(config.get('db.uri'), { useNewUrlParser: true, useFindAndModify: false })
+mongoose
+  .connect(config.get('db.uri'), {
+    useNewUrlParser: true,
+    useFindAndModify: false
+  })
   .then(async () => {
     console.log('INFO: Connected to the database')
 
@@ -17,7 +21,7 @@ mongoose.connect(config.get('db.uri'), { useNewUrlParser: true, useFindAndModify
     // TODO: Initialize Apollo with the required arguments as you see fit
     const server = new ApolloServer({
       typeDefs,
-      resolvers,
+      resolvers
     })
 
     const app = express()
@@ -26,10 +30,10 @@ mongoose.connect(config.get('db.uri'), { useNewUrlParser: true, useFindAndModify
     const { host, port } = config.get('server')
 
     app.listen({ port }, () => {
-      console.log(`Server ready at http://${ host }:${ port }${ server.graphqlPath }`)
+      console.log(`Server ready at http://${host}:${port}${server.graphqlPath}`)
     })
   })
-  .catch((error) => {
+  .catch(error => {
     console.error(error)
     process.exit(-1)
   })

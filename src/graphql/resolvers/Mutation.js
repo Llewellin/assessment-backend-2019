@@ -1,104 +1,76 @@
+const { ObjectId } = require('mongodb')
 const { User, Incident } = require('../../models')
 
 const Mutation = {
-    async createUser(parent, args, { db }, info) {
-        const acceptedRole = ['Engineer', 'Supervisor']
-        const iValidRole = acceptedRole.includes(args.data.role)
-        if (!iValidRole) {
-          throw new Error('Role must be one of type \'Engineer\' \'Supervisor\'')
-        }
+  async createIncident(_, { data }) {
+    // If assignee specified
+    if (data.assignee) {
+      const existedUser = await User.find({ name: data.assignee })
+      if (existedUser.length < 1)
+        throw new Error(`user ${data.assignee} doesn't exist`)
 
-        const existedUser =  await User.find({email: args.data.email})
-        if(existedUser.length > 0)
-          throw new Error('Email taken')
-
-        const user = {
-            ...args.data
-        }
-        const newUser = new User(user);
-        await newUser.save()
-
-        return user
-    },
-    async createIncident(parent, args, { db }, info) {
-      const acceptedStatus = ['Created', 'Acknowledged', 'Resolved']
-      const iValidStatus = acceptedStatus.includes(args.data.status)
-      if (!iValidStatus) {
-        throw new Error('Status must be one of type \'Created\' \'Acknowledged\' \'Resolved\'')
-      }
-
-      const existedIncident = await Incident.find({title: args.data.title})
-      if (existedIncident.length > 0)
-        throw new Error('Title taken')
-
-      const existedUser = await User.find({name: args.data.assignee})
-      if (existedUser.length < 0)
-        throw new Error(`user ${args.data.assignee} doesn't exist`)
-
-      const isValidUser = existedUser[0].role === 'Engineer'
-      if (!isValidUser)
-        throw new Error('User must be an engineer')
-
-      return await (new Incident({...args.data})).save()
-    },
-    async assignIncident(parent, args, { db }, info) {
-      const existedUser = await User.find({name: args.data.userName})
-      const existedIncident = await Incident.find({title: args.data.incidentTitle})
-
-      if(existedUser.length < 0)
-        throw new Error(`User ${args.data.userName} doesn't exist`)
-      if(existedIncident.length < 0)
-        throw new Error(`Incident ${args.data.incidentTitle} doesn't exist`)
-
-      await Incident.findOneAndUpdate({title: args.data.incidentTitle}, {assignee: args.data.userName})
-
-      return {
-        title: existedIncident[0].title,
-        description: existedIncident[0].description,
-        assignee: args.data.userName,
-        status: existedIncident[0].status,
-      }
-    },
-    async acknowledgeIncident(parent, args, { db }, info) {
-      const existedIncident = await Incident.find({title: args.title})
-
-      if(existedIncident.length < 0)
-        throw new Error(`Incident ${args.title} doesn't exist`)
-
-      await Incident.findOneAndUpdate({title: args.title}, {status: 'Acknowledged'})
-
-      return {
-        title: existedIncident[0].title,
-        description: existedIncident[0].description,
-        assignee: existedIncident[0].assignee,
-        status: 'Acknowledged',
-      }
-    },
-    async resolveIncident(parent, args, { db }, info) {
-      const existedIncident = await Incident.find({title: args.title})
-
-      if(existedIncident.length < 0)
-        throw new Error(`Incident ${args.title} doesn't exist`)
-
-      await Incident.findOneAndUpdate({title: args.title}, {status: 'Resolved'})
-
-      return {
-        title: existedIncident[0].title,
-        description: existedIncident[0].description,
-        assignee: existedIncident[0].assignee,
-        status: 'Resolved',
-      }
-    },
-    async deleteIncident(parent, args, { db }, info) {
-      const existedIncident = await Incident.find({title: args.title})
-
-      if(existedIncident.length < 0)
-        throw new Error(`Incident ${args.title} doesn't exist`)
-
-      await Incident.deleteOne({title: args.title})
-
-      return existedIncident[0]
+      return await new Incident({ ...data, status: 'Created' }).save()
     }
+
+    // If assignee NOT specified
+    const firstEngineer = await User.findOne({ role: 'Engineer' })
+    if (!firstEngineer)
+      throw new Error(`No default engineer to do the work, please reassign `)
+    return await new Incident({
+      ...data,
+      status: 'Created',
+      assignee: firstEngineer.name
+    }).save()
+  },
+  async assignIncident(
+    _,
+    {
+      data: { userId, incidentId }
+    }
+  ) {
+    const user = await User.findById(ObjectId(userId))
+    const incident = await Incident.findById(ObjectId(incidentId))
+
+    if (!user) throw new Error(`User with Id ${userId} doesn't exist`)
+    if (!incident)
+      throw new Error(`Incident with Id ${incidentId} doesn't exist`)
+
+    return await Incident.findOneAndUpdate(
+      { _id: ObjectId(incidentId) },
+      { assignee: user.name },
+      { new: true }
+    )
+  },
+  async acknowledgeIncident(_, { id }) {
+    const incident = await Incident.findById(ObjectId(id))
+
+    if (!incident) throw new Error(`Incident with Id ${id} doesn't exist`)
+
+    return await Incident.findOneAndUpdate(
+      { _id: ObjectId(id) },
+      { status: 'Acknowledged' },
+      { new: true }
+    )
+  },
+  async resolveIncident(_, { id }) {
+    const incident = await Incident.findById(ObjectId(id))
+
+    if (!incident) throw new Error(`Incident with Id ${id} doesn't exist`)
+
+    return await Incident.findOneAndUpdate(
+      { _id: ObjectId(id) },
+      { status: 'Resolved' },
+      { new: true }
+    )
+  },
+  async deleteIncident(_, { id }) {
+    const incident = await Incident.findById(ObjectId(id))
+
+    if (!incident) throw new Error(`Incident with Id ${id} doesn't exist`)
+
+    await Incident.deleteOne({ _id: ObjectId(id) })
+    return incident
+  }
 }
 
 module.exports = Mutation

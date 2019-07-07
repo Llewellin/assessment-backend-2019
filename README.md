@@ -1,3 +1,8 @@
+# Update from Ting Sheng Lee (2019.07.07)
+
+In order to run the project, simply run `docker-compose up -d`
+Make sure port 3000 and port 27017 is not occupied.
+
 # Slate backend test assignment (GraphQL)
 
 This repository contains boilerplate for the backend test assignment.

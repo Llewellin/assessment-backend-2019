@@ -1,5 +1,3 @@
-# TODO: This file must be populated so reviewer could easily run your app
-
 FROM node:latest
 
 WORKDIR /usr/src/app/graphqlApp

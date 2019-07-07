@@ -5,6 +5,8 @@ const Incident = `
         description: String!
         assignee: String!
         status: String!
+        createdAt: String!
+        updatedAt: String!
     }`
 
 module.exports = Incident
